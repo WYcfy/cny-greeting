@@ -3,129 +3,314 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>新春祝福</title>
+    <title>2026 金马迎春 - 星河臻藏版</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root { --primary-red: #d90429; --primary-gold: #ffd700; }
-        body { margin: 0; padding: 0; background-color: #1a0b0b; font-family: 'Microsoft YaHei', sans-serif; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; color: var(--primary-gold); }
-        .lantern-container { position: absolute; top: 0; transform-origin: center top; animation: swing 3s infinite ease-in-out; z-index: 10; }
-        .lantern { width: 120px; height: 100px; background: var(--primary-red); border-radius: 30px; box-shadow: 0 0 20px rgba(255, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; position: relative;}
-        .lantern::after { content: ''; position: absolute; bottom: -40px; width: 4px; height: 40px; background: var(--primary-gold); box-shadow: 0 0 5px var(--primary-gold); }
-        .lantern-text { font-size: 2rem; font-weight: bold; color: var(--primary-gold); text-shadow: 1px 1px 2px black; }
-        @keyframes swing { 0% { transform: rotate(-10deg); } 50% { transform: rotate(10deg); } 100% { transform: rotate(-10deg); } }
-        .content-box { text-align: center; padding: 20px; opacity: 0; transition: opacity 1s ease; z-index: 5; }
-        #greeting { font-size: 1.5rem; line-height: 1.6; margin-bottom: 20px; }
-        #targetName { font-size: 2rem; color: #ff4d4d; font-weight: bold; }
-        .btn-open { padding: 15px 40px; font-size: 1.2rem; background: var(--primary-gold); color: #d90429; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4); animation: pulse 1.5s infinite; z-index: 20;}
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-
-        /* 调试面板样式：正式上线后如果不想要，可以把 display:block 改为 none */
-        #debug-console {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: rgba(0,0,0,0.8);
-            color: #0f0;
-            font-size: 10px;
-            padding: 5px;
-            text-align: left;
-            z-index: 999;
-            pointer-events: none;
-            display: block; /* 暂时显示，方便排错 */
+        :root {
+            --gold: #F8D674;
+            /* 移除纯色背景变量，不再需要 */
         }
+        body {
+            /* 【核心修改 1】替换背景为星空银河图片 */
+            /* 使用一张高质量的银河图片，设置居中、固定、覆盖全屏 */
+            background: url('https://images.unsplash.com/photo-1538370965046-79c0d6907d47?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') no-repeat center center fixed;
+            background-size: cover;
+            color: #F2E2BA;
+            font-family: "PingFang SC", "Microsoft YaHei", serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            user-select: none;
+        }
+
+        /* 左侧侧边栏 - 稍微增加一点透明度，让星空透过来 */
+        aside {
+            width: 35vw;
+            min-width: 280px;
+            /* 背景色稍微调透明一点 (0.85 -> 0.75)，让背景的星空能透出一点 */
+            background: linear-gradient(135deg, rgba(26, 5, 5, 0.85) 0%, rgba(15, 5, 5, 0.95) 100%);
+            border-right: 1px solid rgba(248, 214, 116, 0.2);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 4vh 2.5vw;
+            z-index: 20;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.8);
+            overflow-y: auto;
+        }
+        aside::-webkit-scrollbar { width: 0px; }
+
+        .header-title {
+            margin-bottom: 3vh;
+            color: var(--gold);
+            font-size: clamp(14px, 1.5vw, 24px);
+            border-left: 3px solid var(--gold);
+            padding-left: 15px;
+            opacity: 0.8;
+            text-shadow: 0 0 10px rgba(0,0,0,0.8); /* 增加文字阴影以适应复杂背景 */
+        }
+
+        #poem-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2vh;
+        }
+
+        .poem-line {
+            font-size: clamp(12px, 1.3vw + 0.3rem, 26px);
+            line-height: 1.4;
+            font-weight: bold;
+            background: linear-gradient(to right, var(--gold), #F2E2BA, #cf9620);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all 0.8s ease-out;
+            white-space: nowrap;
+            /* 增加文字滤镜阴影，确保在星空背景上清晰可见 */
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+        }
+
+        .poem-line.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        main {
+            flex: 1;
+            position: relative;
+            /* 移除 main 的黑色背景，让 body 的星空显示出来 */
+            background: transparent;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+        }
+
+        /* 启动遮罩 - 加深背景色确保文字清晰 */
+        #start-overlay {
+            position: fixed; inset: 0;
+            background: rgba(2, 1, 5, 0.95); /* 更深一点的遮罩 */
+            z-index: 999;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+        }
+        .start-btn {
+            margin-top: 30px; padding: 12px 45px;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            background: rgba(248, 214, 116, 0.1);
+            font-size: 1.2rem; letter-spacing: 4px; cursor: pointer;
+            transition: 0.3s;
+        }
+        .start-btn:hover { background: var(--gold); color: #000; box-shadow: 0 0 20px var(--gold); }
+
+        .controls { position: absolute; top: 20px; right: 20px; z-index: 100; display: flex; gap: 10px; }
+        .btn-icon { width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(248, 214, 116, 0.3); display: flex; justify-content: center; align-items: center; cursor: pointer; background: rgba(0,0,0,0.5); /* 按钮背景加深 */ }
+        .btn-icon svg { width: 18px; height: 18px; fill: var(--gold); }
     </style>
 </head>
 <body>
-<div class="lantern-container">
-    <div style="height: 50px; width: 2px; background: #ffd700; margin: 0 auto;"></div>
-    <div class="lantern"><span class="lantern-text">福</span></div>
+
+<div id="start-overlay">
+    <h1 class="text-5xl font-bold text-yellow-500 tracking-[0.4em]" style="font-family: '楷体', serif; text-shadow: 0 0 20px rgba(248,214,116,0.3);">星河贺岁</h1>
+    <button class="start-btn">开启祥瑞</button>
 </div>
 
-<button id="startBtn" class="btn-open">点击查收祝福</button>
+<aside>
+    <div class="header-title">To: <span id="target-name">亲爱的朋友</span></div>
+    <div id="poem-container"></div>
+</aside>
 
-<div id="content" class="content-box">
-    <div id="greeting">
-        祝 <span id="targetName"></span>：<br>
-        新年快乐！<br>
-        代码无Bug，上线一次过！<br>
-        身体健康，发量浓密！
+<main id="canvas-container">
+    <div class="controls">
+        <div class="btn-icon" id="btn-play-pause"><svg viewBox="0 0 24 24"><path id="icon-play-path" d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></div>
+        <div class="btn-icon" id="btn-mute"><svg viewBox="0 0 24 24"><path id="icon-sound-path" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg></div>
     </div>
-</div>
+    <canvas id="bg-canvas"></canvas>
+    <canvas id="main-canvas"></canvas>
+</main>
 
-<div id="debug-console">
-    <div>System Init...</div>
-    <div id="audio-status">Audio: Waiting...</div>
-</div>
-
-<audio id="bgm" preload="auto">
-    <source src="bgm.mp3" type="audio/mpeg">
-</audio>
+<video id="horse-video" src="./horse.mp4" loop muted playsinline style="display:none;"></video>
+<audio id="bgm" src="./bgm.mp3" loop style="display:none;"></audio>
 
 <script>
-    const debug = document.getElementById('debug-console');
-    const audioStatus = document.getElementById('audio-status');
+    const FULL_TEXT = [
+        "新春肇启，万象更新", "瑞雪纷飞，千门纳福", "骏马腾骧，驰骋前程之锦绣",
+        "祥云缭绕，辉映家国之康宁", "梅香入户，春意融融盈户牖", "爆竹喧天，欢声阵阵彻云霄",
+         "财源广进，似春潮滚滚而来",
+        "事业高升，如旭日蒸蒸而上", "阖府安康，喜乐常随新岁至", "亲朋和顺，祯祥永伴吉星临",
+        "谨以寸心，恭祝诸君：", "马年大吉，万事胜意", "四时如意，百福骈臻"
+    ];
 
-    function log(msg) {
-        debug.innerHTML += `<div>${msg}</div>`;
+    const bgCanvas = document.getElementById('bg-canvas'), mainCanvas = document.getElementById('main-canvas');
+    const bgCtx = bgCanvas.getContext('2d'), mainCtx = mainCanvas.getContext('2d');
+    const video = document.getElementById('horse-video'), bgm = document.getElementById('bgm');
+    const poemContainer = document.getElementById('poem-container');
+
+    let w, h, isPlaying = false, lastText = FULL_TEXT[0];
+    const offCanvas = document.createElement('canvas'), offCtx = offCanvas.getContext('2d');
+
+    function init() {
+        resize();
+        window.addEventListener('resize', () => {
+            resize();
+            ParticleTextSystem.init(lastText);
+        });
+
+        document.querySelector('.start-btn').addEventListener('click', () => {
+            document.getElementById('start-overlay').style.opacity = 0;
+            setTimeout(() => document.getElementById('start-overlay').style.display='none', 800);
+            bgm.play(); video.play(); isPlaying = true;
+            startPoemFlow();
+            loop();
+            setInterval(() => Fireworks.launch(), 1500);
+        });
+
+        document.getElementById('btn-play-pause').addEventListener('click', () => {
+            isPlaying = !isPlaying;
+            isPlaying ? (video.play(), bgm.play()) : (video.pause(), bgm.pause());
+        });
     }
 
-    // 1. 强力参数解析逻辑
-    try {
-        const url = window.location.href;
-        log("URL: " + url.substring(0, 50) + "..."); // 打印当前URL（防微信篡改）
+    function resize() {
+        w = bgCanvas.width = mainCanvas.width = document.getElementById('canvas-container').clientWidth;
+        h = bgCanvas.height = mainCanvas.height = document.getElementById('canvas-container').clientHeight;
+    }
 
-        const params = new URLSearchParams(window.location.search);
-        let rawName = params.get('to');
-        let name = "老铁";
+    function startPoemFlow() {
+        poemContainer.innerHTML = '';
+        FULL_TEXT.forEach((line, i) => {
+            const div = document.createElement('div');
+            div.className = 'poem-line';
+            div.innerText = line;
+            poemContainer.appendChild(div);
+            setTimeout(() => {
+                div.classList.add('visible');
+                lastText = line;
+                ParticleTextSystem.init(line);
+            }, i * 1000);
+        });
+    }
 
-        if (rawName) {
-            // 尝试解码，防止微信传过来的是 %E8%80%81 这种编码
-            try {
-                name = decodeURIComponent(rawName);
-            } catch (e) {
-                name = rawName; // 解码失败就用原值
+    function drawHorse() {
+        if (!isPlaying && video.paused) return;
+        const aspect = video.videoWidth / video.videoHeight;
+        let dw = w * 0.7, dh = dw / aspect;
+        if (dh > h * 0.6) { dh = h * 0.6; dw = dh * aspect; }
+        offCanvas.width = dw; offCanvas.height = dh;
+        offCtx.drawImage(video, 0, 0, dw, dh);
+        const grad = offCtx.createRadialGradient(dw/2, dh/2, dh*0.1, dw/2, dh/2, dh*0.55);
+        grad.addColorStop(0, 'rgba(0,0,0,1)'); grad.addColorStop(1, 'rgba(0,0,0,0)');
+        offCtx.globalCompositeOperation = 'destination-in';
+        offCtx.fillStyle = grad; offCtx.fillRect(0, 0, dw, dh);
+        mainCtx.save();
+        mainCtx.globalCompositeOperation = 'screen';
+        mainCtx.shadowColor = '#F8D674'; mainCtx.shadowBlur = 25;
+        mainCtx.drawImage(offCanvas, (w-dw)/2, h-dh-20);
+        mainCtx.restore();
+    }
+
+    const ParticleTextSystem = {
+        particles: [],
+        init(text) {
+            const osCanvas = document.createElement('canvas'), osCtx = osCanvas.getContext('2d');
+            osCanvas.width = w; osCanvas.height = h;
+            const fontSize = Math.min(w * 0.1, h * 0.12);
+            osCtx.font = `900 ${fontSize}px "Microsoft YaHei"`;
+            osCtx.textAlign = 'center';
+            osCtx.fillText(text, w/2, h * 0.2);
+
+            const data = osCtx.getImageData(0, 0, w, h).data;
+            const targets = [];
+            for (let y = 0; y < h; y += 2) {
+                for (let x = 0; x < w; x += 2) {
+                    if (data[(y * w + x) * 4 + 3] > 128) targets.push({ x, y });
+                }
             }
-            // 去除可能存在的引号（防止用户手滑打成了 ?to="张三"）
-            name = name.replace(/['"]/g, "");
+
+            const count = Math.max(targets.length, this.particles.length);
+            for (let i = 0; i < count; i++) {
+                if (!this.particles[i]) {
+                    this.particles[i] = {
+                        x: Math.random() * w, y: Math.random() * h,
+                        size: Math.random() * 1.5 + 0.5,
+                        active: false,
+                        rOffset: Math.random() * 10
+                    };
+                }
+                if (i < targets.length) {
+                    this.particles[i].baseX = targets[i].x;
+                    this.particles[i].baseY = targets[i].y;
+                    this.particles[i].active = true;
+                } else { this.particles[i].active = false; }
+            }
+        },
+        update() {
+            const time = Date.now() * 0.002;
+            mainCtx.beginPath();
+            this.particles.forEach(p => {
+                if (!p.active) return;
+                const jitterX = Math.sin(time + p.rOffset) * 0.8;
+                const jitterY = Math.cos(time * 0.8 + p.rOffset) * 0.8;
+                p.x += (p.baseX + jitterX - p.x) * 0.08;
+                p.y += (p.baseY + jitterY - p.y) * 0.08;
+                const alpha = 0.6 + Math.sin(time * 2 + p.rOffset) * 0.3;
+                mainCtx.fillStyle = `rgba(248, 214, 116, ${alpha})`;
+                mainCtx.moveTo(p.x, p.y);
+                mainCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            });
+            mainCtx.fill();
         }
+    };
 
-        log("Target Name: " + name);
-        document.getElementById('targetName').innerText = name;
+    const Fireworks = {
+        f: [], p: [],
+        launch() { this.f.push({x: w/2+(Math.random()-0.5)*w*0.8, y: h, tx: Math.random()*w, ty: Math.random()*h*0.4, hue: Math.random()*360}); },
+        draw() {
+            this.f.forEach((f, i) => {
+                f.y -= 4; bgCtx.fillStyle = `hsl(${f.hue}, 100%, 50%)`; bgCtx.fillRect(f.x, f.y, 3, 5);
+                if(f.y < f.ty) {
+                    for(let j=0; j<40; j++) this.p.push({x: f.x, y: f.y, vx: (Math.random()-0.5)*6, vy: (Math.random()-0.5)*6, a: 1, h: f.hue});
+                    this.f.splice(i, 1);
+                }
+            });
+            this.p.forEach((p, i) => {
+                p.x += p.vx; p.y += p.vy; p.a -= 0.015;
+                bgCtx.fillStyle = `hsla(${p.h}, 100%, 60%, ${p.a})`;
+                bgCtx.beginPath(); bgCtx.arc(p.x, p.y, 1.2, 0, Math.PI*2); bgCtx.fill();
+                if(p.a <= 0) this.p.splice(i, 1);
+            });
+        }
+    };
 
-    } catch (e) {
-        log("Error parsing name: " + e.message);
+    function loop() {
+        // 【核心修改 2】JS Canvas 层：改变拖尾实现方式
+        // 原来的方式：画一个半透明黑色矩形盖住 -> 会盖住背景图
+        // bgCtx.fillStyle = 'rgba(5, 2, 16, 0.2)'; bgCtx.fillRect(0, 0, w, h);
+
+        // 新的方式：使用 destination-out 混合模式，像橡皮擦一样慢慢擦除上一帧
+        // 这会让上一帧的烟花变透明，从而露出底下的 CSS 背景图
+        bgCtx.globalCompositeOperation = 'destination-out';
+        bgCtx.fillStyle = 'rgba(0, 0, 0, 0.15)'; // 擦除力度，值越小拖尾越长
+        bgCtx.fillRect(0, 0, w, h);
+
+        // 恢复正常绘制模式画新烟花
+        bgCtx.globalCompositeOperation = 'lighter';
+        Fireworks.draw();
+
+        mainCtx.clearRect(0, 0, w, h);
+        drawHorse();
+        mainCtx.globalCompositeOperation = 'source-over';
+        ParticleTextSystem.update();
+        requestAnimationFrame(loop);
     }
 
-    // 2. 音频逻辑
-    const startBtn = document.getElementById('startBtn');
-    const content = document.getElementById('content');
-    const bgm = document.getElementById('bgm');
-
-    startBtn.addEventListener('click', function() {
-        startBtn.style.display = 'none';
-        content.style.opacity = '1';
-
-        audioStatus.innerText = "Audio: Attempting play...";
-
-        // 尝试播放
-        const playPromise = bgm.play();
-
-        if (playPromise !== undefined) {
-            playPromise.then(_ => {
-                audioStatus.innerText = "Audio: Playing success!";
-                audioStatus.style.color = "#0f0";
-            })
-                .catch(error => {
-                    // 关键：告诉我们为什么失败
-                    audioStatus.innerText = "Audio Failed: " + error.message;
-                    audioStatus.style.color = "red";
-                    // 如果是因为网络原因（没有加载到），提示用户
-                    if(error.message.includes("supported sources")) {
-                        alert("背景音乐加载失败，请检查网络或MP3文件名是否为小写 bgm.mp3");
-                    }
-                });
-        }
-    });
+    init();
 </script>
 </body>
 </html>
