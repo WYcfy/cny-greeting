@@ -17,6 +17,22 @@
         #targetName { font-size: 2rem; color: #ff4d4d; font-weight: bold; }
         .btn-open { padding: 15px 40px; font-size: 1.2rem; background: var(--primary-gold); color: #d90429; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4); animation: pulse 1.5s infinite; z-index: 20;}
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+        /* 调试面板样式：正式上线后如果不想要，可以把 display:block 改为 none */
+        #debug-console {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0,0,0,0.8);
+            color: #0f0;
+            font-size: 10px;
+            padding: 5px;
+            text-align: left;
+            z-index: 999;
+            pointer-events: none;
+            display: block; /* 暂时显示，方便排错 */
+        }
     </style>
 </head>
 <body>
@@ -36,41 +52,79 @@
     </div>
 </div>
 
+<div id="debug-console">
+    <div>System Init...</div>
+    <div id="audio-status">Audio: Waiting...</div>
+</div>
+
 <audio id="bgm" preload="auto">
     <source src="bgm.mp3" type="audio/mpeg">
-    <source src="BGM.mp3" type="audio/mpeg">
 </audio>
 
 <script>
-    // 1. 强制从 URL 获取参数，增加调试日志
-    const params = new URLSearchParams(window.location.search);
-    let name = params.get('to');
+    const debug = document.getElementById('debug-console');
+    const audioStatus = document.getElementById('audio-status');
 
-    // 调试：如果 URL 里没拿到，看看是不是乱码了
-    console.log("Current URL:", window.location.href);
-    console.log("Parsed Name:", name);
-
-    if (!name) {
-        name = "老铁"; // 默认值
+    function log(msg) {
+        debug.innerHTML += `<div>${msg}</div>`;
     }
 
-    document.getElementById('targetName').innerText = name;
+    // 1. 强力参数解析逻辑
+    try {
+        const url = window.location.href;
+        log("URL: " + url.substring(0, 50) + "..."); // 打印当前URL（防微信篡改）
 
+        const params = new URLSearchParams(window.location.search);
+        let rawName = params.get('to');
+        let name = "老铁";
+
+        if (rawName) {
+            // 尝试解码，防止微信传过来的是 %E8%80%81 这种编码
+            try {
+                name = decodeURIComponent(rawName);
+            } catch (e) {
+                name = rawName; // 解码失败就用原值
+            }
+            // 去除可能存在的引号（防止用户手滑打成了 ?to="张三"）
+            name = name.replace(/['"]/g, "");
+        }
+
+        log("Target Name: " + name);
+        document.getElementById('targetName').innerText = name;
+
+    } catch (e) {
+        log("Error parsing name: " + e.message);
+    }
+
+    // 2. 音频逻辑
     const startBtn = document.getElementById('startBtn');
     const content = document.getElementById('content');
     const bgm = document.getElementById('bgm');
 
     startBtn.addEventListener('click', function() {
-        // 2. 尝试播放音频，并捕获错误
-        bgm.play().then(() => {
-            console.log("播放成功");
-        }).catch(error => {
-            // 如果播放失败，弹窗告诉我们在哪一步挂了
-            alert("音频播放失败: " + error.message + "\n请检查文件名是否为 bgm.mp3");
-        });
-
         startBtn.style.display = 'none';
         content.style.opacity = '1';
+
+        audioStatus.innerText = "Audio: Attempting play...";
+
+        // 尝试播放
+        const playPromise = bgm.play();
+
+        if (playPromise !== undefined) {
+            playPromise.then(_ => {
+                audioStatus.innerText = "Audio: Playing success!";
+                audioStatus.style.color = "#0f0";
+            })
+                .catch(error => {
+                    // 关键：告诉我们为什么失败
+                    audioStatus.innerText = "Audio Failed: " + error.message;
+                    audioStatus.style.color = "red";
+                    // 如果是因为网络原因（没有加载到），提示用户
+                    if(error.message.includes("supported sources")) {
+                        alert("背景音乐加载失败，请检查网络或MP3文件名是否为小写 bgm.mp3");
+                    }
+                });
+        }
     });
 </script>
 </body>
