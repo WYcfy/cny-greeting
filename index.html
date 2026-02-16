@@ -5,121 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>新春祝福</title>
     <style>
-        :root {
-            --primary-red: #d90429;
-            --primary-gold: #ffd700;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #1a0b0b; /* 深红黑背景，突出灯笼 */
-            font-family: 'Microsoft YaHei', sans-serif;
-            overflow: hidden; /* 禁止滚动 */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            color: var(--primary-gold);
-        }
-
-        /* --- 核心动画逻辑：灯笼 --- */
-        .lantern-container {
-            position: absolute;
-            top: 0;
-            /* 关键点2：物理模拟。设置旋转中心点在绳子顶部，而非物体中心 */
-            transform-origin: center top;
-            animation: swing 3s infinite ease-in-out;
-            z-index: 10;
-        }
-
-        .lantern {
-            width: 120px;
-            height: 100px;
-            background: var(--primary-red);
-            border-radius: 30px;
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /* 灯笼的穗子 */
-        .lantern::after {
-            content: '';
-            position: absolute;
-            bottom: -40px;
-            width: 4px;
-            height: 40px;
-            background: var(--primary-gold);
-            box-shadow: 0 0 5px var(--primary-gold);
-        }
-
-        /* 灯笼上的文字 */
-        .lantern-text {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--primary-gold);
-            text-shadow: 1px 1px 2px black;
-        }
-
-        /* 摇晃动画关键帧 */
-        @keyframes swing {
-            0% { transform: rotate(-10deg); }
-            50% { transform: rotate(10deg); }
-            100% { transform: rotate(-10deg); }
-        }
-
-        /* --- 交互区域 --- */
-        .content-box {
-            text-align: center;
-            padding: 20px;
-            opacity: 0; /* 初始隐藏 */
-            transition: opacity 1s ease;
-            z-index: 5;
-        }
-
-        #greeting {
-            font-size: 1.5rem;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-
-        #targetName {
-            font-size: 2rem;
-            color: #ff4d4d;
-            font-weight: bold;
-        }
-
-        /* 触发按钮 */
-        .btn-open {
-            padding: 15px 40px;
-            font-size: 1.2rem;
-            background: var(--primary-gold);
-            color: #d90429;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
+        :root { --primary-red: #d90429; --primary-gold: #ffd700; }
+        body { margin: 0; padding: 0; background-color: #1a0b0b; font-family: 'Microsoft YaHei', sans-serif; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; color: var(--primary-gold); }
+        .lantern-container { position: absolute; top: 0; transform-origin: center top; animation: swing 3s infinite ease-in-out; z-index: 10; }
+        .lantern { width: 120px; height: 100px; background: var(--primary-red); border-radius: 30px; box-shadow: 0 0 20px rgba(255, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; position: relative;}
+        .lantern::after { content: ''; position: absolute; bottom: -40px; width: 4px; height: 40px; background: var(--primary-gold); box-shadow: 0 0 5px var(--primary-gold); }
+        .lantern-text { font-size: 2rem; font-weight: bold; color: var(--primary-gold); text-shadow: 1px 1px 2px black; }
+        @keyframes swing { 0% { transform: rotate(-10deg); } 50% { transform: rotate(10deg); } 100% { transform: rotate(-10deg); } }
+        .content-box { text-align: center; padding: 20px; opacity: 0; transition: opacity 1s ease; z-index: 5; }
+        #greeting { font-size: 1.5rem; line-height: 1.6; margin-bottom: 20px; }
+        #targetName { font-size: 2rem; color: #ff4d4d; font-weight: bold; }
+        .btn-open { padding: 15px 40px; font-size: 1.2rem; background: var(--primary-gold); color: #d90429; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4); animation: pulse 1.5s infinite; z-index: 20;}
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body>
-
 <div class="lantern-container">
-    <div class="rope" style="height: 50px; width: 2px; background: #ffd700; margin: 0 auto;"></div>
-    <div class="lantern">
-        <span class="lantern-text">福</span>
-    </div>
+    <div style="height: 50px; width: 2px; background: #ffd700; margin: 0 auto;"></div>
+    <div class="lantern"><span class="lantern-text">福</span></div>
 </div>
 
 <button id="startBtn" class="btn-open">点击查收祝福</button>
@@ -133,36 +36,40 @@
     </div>
 </div>
 
-<audio id="bgm" src="./bgm.mp3" loop></audio>
+<audio id="bgm" preload="auto">
+    <source src="bgm.mp3" type="audio/mpeg">
+    <source src="BGM.mp3" type="audio/mpeg">
+</audio>
 
 <script>
-    // --- 逻辑层 ---
-
-    // 1. 获取 URL 参数
+    // 1. 强制从 URL 获取参数，增加调试日志
     const params = new URLSearchParams(window.location.search);
-    // 关键点3：从 "to" 参数获取名字，如果没传，默认为 "老铁"
-    const name = params.get('to') || "老铁";
+    let name = params.get('to');
 
-    // 2. 安全渲染 (防XSS)
-    // 使用 innerText 而非 innerHTML，防止有人在 URL 里传 <script>
-    const nameElement = document.getElementById('targetName');
-    nameElement.innerText = name;
+    // 调试：如果 URL 里没拿到，看看是不是乱码了
+    console.log("Current URL:", window.location.href);
+    console.log("Parsed Name:", name);
 
-    // 3. 交互逻辑
+    if (!name) {
+        name = "老铁"; // 默认值
+    }
+
+    document.getElementById('targetName').innerText = name;
+
     const startBtn = document.getElementById('startBtn');
     const content = document.getElementById('content');
     const bgm = document.getElementById('bgm');
 
     startBtn.addEventListener('click', function() {
-        // 播放音乐（必须由用户交互触发）
-        bgm.play().catch(error => {
-            console.log("音频播放失败，可能是文件路径错误或浏览器限制", error);
+        // 2. 尝试播放音频，并捕获错误
+        bgm.play().then(() => {
+            console.log("播放成功");
+        }).catch(error => {
+            // 如果播放失败，弹窗告诉我们在哪一步挂了
+            alert("音频播放失败: " + error.message + "\n请检查文件名是否为 bgm.mp3");
         });
 
-        // 隐藏按钮
         startBtn.style.display = 'none';
-
-        // 显示祝福语
         content.style.opacity = '1';
     });
 </script>
